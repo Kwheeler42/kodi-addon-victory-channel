@@ -4,7 +4,7 @@
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.22.0"/>
     </requires>
-    <extension point="xbmc.python.pluginsource" library="addon.py">
+    <extension point="xbmc.python.pluginsource" library="main.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
@@ -17,7 +17,7 @@
         <forum>https://www.govictory.com</forum>
         <website>https://www.govictory.com</website>
         <source>https://github.com/Victory-Channel/kodi-addon-victory-channel</source>
-        <news>1.0.0 (2021-09-08) New Channel</news>
+        <news>1.0.0 (2022-06-27) New Channel</news>
         <assets>
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
