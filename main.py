@@ -21,15 +21,15 @@ _HANDLE = int(sys.argv[1])
 # from some web-site or online service.
 VIDEOS = {'FlashPoint': [{'name': 'Flashpoint 220623 Thursday',
                        'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/04/crab-screenshot.jpg',
-                       'video': 'https://vimeo.com/723600976/c936c3fbd8',
+                       'video': 'https://content.uplynk.com/5ba4608faaeb4634b20f942b9d110454.m3u8',
                        'genre': 'FlashPoint'},
                       {'name': 'FlashPoint 220621 Tuesday',
                        'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/04/alligator-screenshot.jpg',
-                       'video': 'https://vimeo.com/722814723/fef2f8d451',
+                       'video': 'https://content.uplynk.com/e8586aa974fb453bbdf775cf7acf40b8.m3u8',
                        'genre': 'FlashPoint'},
                       {'name': 'FlashPoint 220616 Thursday',
                        'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/04/turtle-screenshot.jpg',
-                       'video': 'https://vimeo.com/721308493/02f60a9ba9',
+                       'video': 'https://content.uplynk.com/429c17412f284a73826d12432ff82d65.m3u8',
                        'genre': 'FlashPoint'}
                       ],
             'Victory News': [{'name': 'VNAM 220628 Tuesday',
@@ -47,16 +47,12 @@ VIDEOS = {'FlashPoint': [{'name': 'Flashpoint 220623 Thursday',
                      ],
             'Morning Prayer': [{'name': '220628 Tuesday',
                       'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/bbq_chicken-screenshot.jpg',
-                      'video': 'https://vimeo.com/724894373/70e4638fc5',
+                      'video': 'https://player.vimeo.com/external/723600976.m3u8?s=92b5261ec634b83070dd5f6085b589736f4daa34',
                       'genre': 'Prayer'},
                      {'name': '220627 Monday',
                       'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/hamburger-screenshot.jpg',
                       'video': 'https://vimeo.com/724491679/0095759ace',
                       'genre': 'Prayer'},
-                     {'name': 'Pizza',
-                      'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/pizza-screenshot.jpg',
-                      'video': 'http://www.vidsplay.com/wp-content/uploads/2017/05/pizza.mp4',
-                      'genre': 'Food'}
                      ]}
 
 
