@@ -1,11 +1,12 @@
 # Module: main
-# Author: Roman V. M.
+# Author: Kenneth Wheeler
 # Created on: 28.11.2014
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 """
 Example video plugin that is compatible with Kodi 19.x "Matrix" and above
 """
 import sys
+from requests import get
 from urllib.parse import urlencode, parse_qsl
 import xbmcgui
 import xbmcplugin
@@ -15,45 +16,17 @@ _URL = sys.argv[0]
 # Get the plugin handle as an integer number.
 _HANDLE = int(sys.argv[1])
 
-# Free sample videos are provided by www.vidsplay.com
 # Here we use a fixed set of properties simply for demonstrating purposes
 # In a "real life" plugin you will need to get info and links to video files/streams
 # from some web-site or online service.
-VIDEOS = {'FlashPoint': [{'name': 'Flashpoint 220623 Thursday',
-                       'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/04/crab-screenshot.jpg',
-                       'video': 'https://content.uplynk.com/5ba4608faaeb4634b20f942b9d110454.m3u8',
-                       'genre': 'FlashPoint'},
-                      {'name': 'FlashPoint 220621 Tuesday',
-                       'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/04/alligator-screenshot.jpg',
-                       'video': 'https://content.uplynk.com/e8586aa974fb453bbdf775cf7acf40b8.m3u8',
-                       'genre': 'FlashPoint'},
-                      {'name': 'FlashPoint 220616 Thursday',
-                       'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/04/turtle-screenshot.jpg',
-                       'video': 'https://content.uplynk.com/429c17412f284a73826d12432ff82d65.m3u8',
-                       'genre': 'FlashPoint'}
-                      ],
-            'Victory News': [{'name': 'VNAM 220628 Tuesday',
-                      'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/us_postal-screenshot.jpg',
-                      'video': 'https://content.uplynk.com/c317385fdd9846e3952eb30ef3617c6e.m3u8',
-                      'genre': 'News'},
-                     {'name': 'VNAF 220627 Monday',
-                      'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/traffic1-screenshot.jpg',
-                      'video': 'https://vimeo.com/724646222/f9502a6886',
-                      'genre': 'News'},
-                     {'name': 'VNAM 220627 Monday',
-                      'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/traffic_arrows-screenshot.jpg',
-                      'video': 'https://vimeo.com/724571202/ea8ff877ed',
-                      'genre': 'News'}
-                     ],
-            'Morning Prayer': [{'name': '220628 Tuesday',
-                      'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/bbq_chicken-screenshot.jpg',
-                      'video': 'https://player.vimeo.com/external/723600976.m3u8?s=92b5261ec634b83070dd5f6085b589736f4daa34',
-                      'genre': 'Prayer'},
-                     {'name': '220627 Monday',
-                      'thumb': 'http://www.vidsplay.com/wp-content/uploads/2017/05/hamburger-screenshot.jpg',
-                      'video': 'https://vimeo.com/724491679/0095759ace',
-                      'genre': 'Prayer'},
-                     ]}
+
+aws_link = (get("https://rt1o4zk4ub.execute-api.us-west-2.amazonaws.com/prod/kodi/content")).json()
+VIDEOS = {}
+VIDEOS = {i['program_title']: [] for i in aws_link['data'] if i['program_title'] not in VIDEOS}
+
+for name_of_show in VIDEOS:
+    VIDEOS[name_of_show] = [{'name': id['date'], 'thumb': id['thumbnail'], 'video': '', 'genre': 'sermon'} for id in aws_link['data'] if name_of_show == id['program_title'] and {'name': id['date'], 'thumb': id['thumbnail'], 'video': '', 'genre': 'sermon'} not in VIDEOS[name_of_show]]
+
 
 
 def get_url(**kwargs):
@@ -154,7 +127,7 @@ def list_videos(category):
     :type category: str
     """
     # Set plugin category. It is displayed in some skins as the name
-    # of the current section.
+    # of the current section.s
     xbmcplugin.setPluginCategory(_HANDLE, category)
     # Set plugin content. It allows Kodi to select appropriate views
     # for this type of content.
