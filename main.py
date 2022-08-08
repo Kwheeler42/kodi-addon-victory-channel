@@ -24,9 +24,17 @@ aws_link = (get("https://rt1o4zk4ub.execute-api.us-west-2.amazonaws.com/prod/kod
 VIDEOS = {}
 VIDEOS = {i['program_title']: [] for i in aws_link['data'] if i['program_title'] not in VIDEOS}
 
-for name_of_show in VIDEOS:
-    VIDEOS[name_of_show] = [{'name': id['date'], 'thumb': id['thumbnail'], 'video': '', 'genre': 'sermon'} for id in aws_link['data'] if name_of_show == id['program_title'] and {'name': id['date'], 'thumb': id['thumbnail'], 'video': '', 'genre': 'sermon'} not in VIDEOS[name_of_show]]
+def hls(x):
+    try:
+        hls_site = (get(x).json())['data']['media'][0]['url']
+        return(hls_site)
+    except:
+        pass
+    
 
+for name_of_show in VIDEOS:
+    VIDEOS[name_of_show] = [{'name': id['date'], 'thumb': id['thumbnail'], 'video': hls(id), 'genre': 'sermon'} for id in aws_link['data'] if name_of_show == id['program_title'] and {'name': id['date'], 'thumb': id['thumbnail'], 'video': '', 'genre': 'sermon'} not in VIDEOS[name_of_show]]
+  
 
 
 def get_url(**kwargs):
@@ -37,7 +45,22 @@ def get_url(**kwargs):
     :return: plugin call URL
     :rtype: str
     """
-    return '{}?{}'.format(_URL, urlencode(kwargs))
+    hls_stream = ((get(kwargs)).json())['data']
+    if hls_stream == False:
+        return '{}?{}'.format(_URL, urlencode(kwargs))
+    else:
+        return (hls_stream['media'][0]['url']).format(_URL, urlencode(kwargs))
+ 
+
+def get_url_cat(**kwargs):
+    """
+    Create a URL for calling the plugin recursively from the given set of keyword arguments.
+
+    :param kwargs: "argument=value" pairs
+    :return: plugin call URL
+    :rtype: str
+    """
+    return '{}?{}'.format(_URL, urlencode(kwargs))    
 
 
 def get_categories():
@@ -72,6 +95,7 @@ def get_videos(category):
     :return: the list of videos in the category
     :rtype: list
     """
+
     return VIDEOS[category]
 
 
@@ -108,7 +132,7 @@ def list_categories():
                                     'mediatype': 'video'})
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=listing&category=Animals
-        url = get_url(action='listing', category=category)
+        url = get_url_cat(action='listing', category=category)
         # is_folder = True means that this item opens a sub-list of lower level items.
         is_folder = True
         # Add our item to the Kodi virtual folder listing.
