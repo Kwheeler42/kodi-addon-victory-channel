@@ -39,9 +39,6 @@ def pull_hls(x):
         pass
 
 
-
- 
-
 def get_url(**kwargs):
     """
     Create a URL for calling the plugin recursively from the given set of keyword arguments.
@@ -58,24 +55,16 @@ def get_categories():
     """
     Get the list of video categories.
 
-    Here you can insert some parsing code that retrieves
-    the list of video categories (e.g. 'Movies', 'TV-shows', 'Documentaries' etc.)
-    from some site or API.
-
-    .. note:: Consider using `generator functions <https://wiki.python.org/moin/Generators>`_
-        instead of returning lists.
-
     :return: The list of video categories
     :rtype: types.GeneratorType
     """
+
     print('get categories definition has been called')
     for name_of_show in VIDEOS:
         for id in aws_link['data']:
             if name_of_show == id['program_title'] and id['program_id'] not in pgm_id_checklist:
-                VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'genre': 'sermon'})
+                VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'genre': id['description']})
                 pgm_id_checklist.append(id['program_id'])
-
-
 
     return VIDEOS.keys()
 
@@ -84,12 +73,6 @@ def get_videos(category):
     content_id_check_list = ['']
     """
     Get the list of videofiles/streams.
-
-    Here you can insert some parsing code that retrieves
-    the list of video streams in the given category from some site or API.
-
-    .. note:: Consider using `generators functions <https://wiki.python.org/moin/Generators>`_
-        instead of returning lists.
 
     :param category: Category name
     :type category: str
@@ -101,15 +84,13 @@ def get_videos(category):
     for name_of_show in VIDEOS:
         for id in aws_link['data']:
             if name_of_show == id['program_title'] and id['content_id'] not in content_id_check_list:
-                VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'video': id['path'], 'genre': 'sermon'})
+                VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'video': id['path'], 'genre': id['description']})
                 content_id_check_list.append(id['content_id'])
 
     for show_date in VIDEOS[category]:
         stream_link = pull_hls(show_date['video'])
         show_date['video'] = stream_link
     
-    
-
     return VIDEOS[category]
 
 
@@ -143,7 +124,7 @@ def list_categories():
         # https://codedocs.xyz/xbmc/xbmc/group__python__xbmcgui__listitem.html#ga0b71166869bda87ad744942888fb5f14
         # 'mediatype' is needed for a skin to display info for this ListItem correctly.
         list_item.setInfo('video', {'title': category,
-                                    'genre': category,
+                                    'genre': VIDEOS[category][0]['genre'],
                                     'mediatype': 'video'})
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=listing&category=Animals
