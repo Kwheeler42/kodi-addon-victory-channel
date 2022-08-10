@@ -50,7 +50,6 @@ def get_url(**kwargs):
     :return: plugin call URL
     :rtype: str
     """
-    print('get url definition has been called')
     return '{}?{}'.format(_URL, urlencode(kwargs))    
 
 
@@ -98,11 +97,19 @@ def get_videos(category):
     :rtype: list
     """
     print('get videos definition has been called')
+
     for name_of_show in VIDEOS:
         for id in aws_link['data']:
             if name_of_show == id['program_title'] and id['content_id'] not in content_id_check_list:
                 VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'video': id['path'], 'genre': 'sermon'})
-                content_id_check_list.append(id['content_id'])    
+                content_id_check_list.append(id['content_id'])
+
+    for show_date in VIDEOS[category]:
+        stream_link = pull_hls(show_date['video'])
+        show_date['video'] = stream_link
+    
+    
+
     return VIDEOS[category]
 
 
@@ -120,9 +127,7 @@ def list_categories():
     # Get video categories
     categories = get_categories()
     # Iterate through categories
-    print('we will now iterate through categories')
     for category in categories:
-        print(str(category) + ' we are working on this video')
         # Create a list item with a text label and a thumbnail image.
         list_item = xbmcgui.ListItem(label=category)
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
@@ -131,7 +136,6 @@ def list_categories():
         list_item.setArt({'thumb': VIDEOS[category][0]['thumb'],
                           'icon': VIDEOS[category][0]['thumb'],
                           'fanart': VIDEOS[category][0]['thumb']})
-        print(str(list_item) + ' thumb, icon, art has been set')
         # Set additional info for the list item.
         # Here we use a category name for both properties for for simplicity's sake.
         # setInfo allows to set various information for an item.
@@ -144,7 +148,6 @@ def list_categories():
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=listing&category=Animals
         url = get_url(action='listing', category=category)
-        print('the URL for ' + str(category) + ' is ' + str(url))
         # is_folder = True means that this item opens a sub-list of lower level items.
         is_folder = True
         # Add our item to the Kodi virtual folder listing.
@@ -212,9 +215,8 @@ def play_video(path):
     :type path: str
     """
     print('play video definition has been called')
-    stream_link = pull_hls(path)
     # Create a playable item with a path to play.
-    play_item = xbmcgui.ListItem(stream_link)
+    play_item = xbmcgui.ListItem(path=path)
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=play_item)
 
