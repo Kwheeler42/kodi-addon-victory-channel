@@ -22,20 +22,25 @@ _HANDLE = int(sys.argv[1])
 
 aws_link = (get("https://rt1o4zk4ub.execute-api.us-west-2.amazonaws.com/prod/kodi/content")).json()
 VIDEOS = {}
-VIDEOS = {i['program_title']: [] for i in aws_link['data'] if i['program_title'] not in VIDEOS}
 
-def hls(x):
+true_id_checklist = ['']
+for i in aws_link['data']:
+    true_id = (i['program_id']).split('_', 1)[0]
+    if true_id not in true_id_checklist:
+        VIDEOS[i['program_title']] = []
+        true_id_checklist.append(true_id)
+
+
+def pull_hls(x):
     try:
         hls_site = (get(x).json())['data']['media'][0]['url']
         return(hls_site)
     except:
         pass
-    
 
-for name_of_show in VIDEOS:
-    VIDEOS[name_of_show] = [{'name': id['date'], 'thumb': id['thumbnail'], 'video': hls(id), 'genre': 'sermon'} for id in aws_link['data'] if name_of_show == id['program_title'] and {'name': id['date'], 'thumb': id['thumbnail'], 'video': '', 'genre': 'sermon'} not in VIDEOS[name_of_show]]
-  
 
+
+ 
 
 def get_url(**kwargs):
     """
@@ -45,25 +50,12 @@ def get_url(**kwargs):
     :return: plugin call URL
     :rtype: str
     """
-    hls_stream = ((get(kwargs)).json())['data']
-    if hls_stream == False:
-        return '{}?{}'.format(_URL, urlencode(kwargs))
-    else:
-        return (hls_stream['media'][0]['url']).format(_URL, urlencode(kwargs))
- 
-
-def get_url_cat(**kwargs):
-    """
-    Create a URL for calling the plugin recursively from the given set of keyword arguments.
-
-    :param kwargs: "argument=value" pairs
-    :return: plugin call URL
-    :rtype: str
-    """
+    print('get url definition has been called')
     return '{}?{}'.format(_URL, urlencode(kwargs))    
 
 
 def get_categories():
+    pgm_id_checklist = ['']
     """
     Get the list of video categories.
 
@@ -77,10 +69,20 @@ def get_categories():
     :return: The list of video categories
     :rtype: types.GeneratorType
     """
+    print('get categories definition has been called')
+    for name_of_show in VIDEOS:
+        for id in aws_link['data']:
+            if name_of_show == id['program_title'] and id['program_id'] not in pgm_id_checklist:
+                VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'genre': 'sermon'})
+                pgm_id_checklist.append(id['program_id'])
+
+
+
     return VIDEOS.keys()
 
 
 def get_videos(category):
+    content_id_check_list = ['']
     """
     Get the list of videofiles/streams.
 
@@ -95,7 +97,12 @@ def get_videos(category):
     :return: the list of videos in the category
     :rtype: list
     """
-
+    print('get videos definition has been called')
+    for name_of_show in VIDEOS:
+        for id in aws_link['data']:
+            if name_of_show == id['program_title'] and id['content_id'] not in content_id_check_list:
+                VIDEOS[name_of_show].append({'name': id['date'], 'thumb': id['thumbnail'], 'video': id['path'], 'genre': 'sermon'})
+                content_id_check_list.append(id['content_id'])    
     return VIDEOS[category]
 
 
@@ -103,6 +110,7 @@ def list_categories():
     """
     Create the list of video categories in the Kodi interface.
     """
+    print('list categories definition has been called')
     # Set plugin category. It is displayed in some skins as the name
     # of the current section.
     xbmcplugin.setPluginCategory(_HANDLE, 'My Video Collection')
@@ -112,7 +120,9 @@ def list_categories():
     # Get video categories
     categories = get_categories()
     # Iterate through categories
+    print('we will now iterate through categories')
     for category in categories:
+        print(str(category) + ' we are working on this video')
         # Create a list item with a text label and a thumbnail image.
         list_item = xbmcgui.ListItem(label=category)
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
@@ -121,6 +131,7 @@ def list_categories():
         list_item.setArt({'thumb': VIDEOS[category][0]['thumb'],
                           'icon': VIDEOS[category][0]['thumb'],
                           'fanart': VIDEOS[category][0]['thumb']})
+        print(str(list_item) + ' thumb, icon, art has been set')
         # Set additional info for the list item.
         # Here we use a category name for both properties for for simplicity's sake.
         # setInfo allows to set various information for an item.
@@ -132,7 +143,8 @@ def list_categories():
                                     'mediatype': 'video'})
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=listing&category=Animals
-        url = get_url_cat(action='listing', category=category)
+        url = get_url(action='listing', category=category)
+        print('the URL for ' + str(category) + ' is ' + str(url))
         # is_folder = True means that this item opens a sub-list of lower level items.
         is_folder = True
         # Add our item to the Kodi virtual folder listing.
@@ -150,6 +162,7 @@ def list_videos(category):
     :param category: Category name
     :type category: str
     """
+    print('list videos definition has been called')
     # Set plugin category. It is displayed in some skins as the name
     # of the current section.s
     xbmcplugin.setPluginCategory(_HANDLE, category)
@@ -161,12 +174,15 @@ def list_videos(category):
     # Iterate through videos.
     for video in videos:
         # Create a list item with a text label and a thumbnail image.
+        print(str(video) + 'this is the video we are working on')
         list_item = xbmcgui.ListItem(label=video['name'])
         # Set additional info for the list item.
+        print(str(list_item) + ' clean')
         # 'mediatype' is needed for skin to display info for this ListItem correctly.
         list_item.setInfo('video', {'title': video['name'],
                                     'genre': video['genre'],
                                     'mediatype': 'video'})
+        print(str(list_item) + ' title, genre')
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
         # Here we use the same image for all items for simplicity's sake.
         # In a real-life plugin you need to set each image accordingly.
@@ -195,8 +211,10 @@ def play_video(path):
     :param path: Fully-qualified video URL
     :type path: str
     """
+    print('play video definition has been called')
+    stream_link = pull_hls(path)
     # Create a playable item with a path to play.
-    play_item = xbmcgui.ListItem(path=path)
+    play_item = xbmcgui.ListItem(stream_link)
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(_HANDLE, True, listitem=play_item)
 
@@ -211,6 +229,7 @@ def router(paramstring):
     """
     # Parse a URL-encoded paramstring to the dictionary of
     # {<parameter>: <value>} elements
+    print('router has started')
     params = dict(parse_qsl(paramstring))
     # Check the parameters passed to the plugin
     if params:
@@ -234,4 +253,5 @@ def router(paramstring):
 if __name__ == '__main__':
     # Call the router function and pass the plugin call parameters to it.
     # We use string slicing to trim the leading '?' from the plugin call paramstring
+    print('Hello World')
     router(sys.argv[2][1:])
