@@ -1,10 +1,8 @@
 # Module: main
 # Author: Kenneth Wheeler
-# Created on: 28.11.2014
+# Created on: 08.10.2022
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
-"""
-Example video plugin that is compatible with Kodi 19.x "Matrix" and above
-"""
+
 import sys
 from requests import get
 from urllib.parse import urlencode, parse_qsl
@@ -16,13 +14,16 @@ _URL = sys.argv[0]
 # Get the plugin handle as an integer number.
 _HANDLE = int(sys.argv[1])
 
-# Here we use a fixed set of properties simply for demonstrating purposes
-# In a "real life" plugin you will need to get info and links to video files/streams
-# from some web-site or online service.
+#The way that Kodi functions as a plugin it runs everything from the top down each time the plugin is called
+#this means we can put a variable at the top of the program to display all the current broadcasts we have available
+#however this plugin gets closed every time an action is taken and reopened thus we need to remake the VIDEOS dictionary each time
 
+#create a json variable out of the aws server so we are not pinging it constantly
 aws_link = (get("https://rt1o4zk4ub.execute-api.us-west-2.amazonaws.com/prod/kodi/content")).json()
 VIDEOS = {}
 
+#Ceates a list of shows currently available for display and use throught the rest of the script
+#its neccessary to have this top level so the rest of the program is able to call it
 true_id_checklist = ['']
 for i in aws_link['data']:
     true_id = (i['program_id']).split('_', 1)[0]
@@ -97,6 +98,7 @@ def get_videos(category):
 def list_categories():
     """
     Create the list of video categories in the Kodi interface.
+    This is the main menu that is displayed when we open the Victory Cannel add on
     """
     print('list categories definition has been called')
     # Set plugin category. It is displayed in some skins as the name
@@ -158,15 +160,12 @@ def list_videos(category):
     # Iterate through videos.
     for video in videos:
         # Create a list item with a text label and a thumbnail image.
-        print(str(video) + 'this is the video we are working on')
         list_item = xbmcgui.ListItem(label=video['name'])
         # Set additional info for the list item.
-        print(str(list_item) + ' clean')
         # 'mediatype' is needed for skin to display info for this ListItem correctly.
         list_item.setInfo('video', {'title': video['name'],
                                     'genre': video['genre'],
                                     'mediatype': 'video'})
-        print(str(list_item) + ' title, genre')
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
         # Here we use the same image for all items for simplicity's sake.
         # In a real-life plugin you need to set each image accordingly.
