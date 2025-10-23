@@ -1,0 +1,7 @@
+<settings>
+  <category label="30000">
+    <setting id="api_url" type="text" label="30001" default="https://rt1o4zk4ub.execute-api.us-west-2.amazonaws.com/prod/kodi/content"/>
+    <setting id="request_timeout" type="number" label="30002" default="10"/>
+    <setting id="enable_debug" type="bool" label="30003" default="false"/>
+  </category>
+</settings>

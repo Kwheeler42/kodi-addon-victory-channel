@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.victorychannel\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#30000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#30001"
+msgid "API URL"
+msgstr "API URL"
+
+msgctxt "#30002"
+msgid "Request timeout (seconds)"
+msgstr "Request timeout (seconds)"
+
+msgctxt "#30003"
+msgid "Enable debug logging"
+msgstr "Enable debug logging"
